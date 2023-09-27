@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "webwithpy"
+version = "0.0.1"
+description = ""
+authors = ["Sven Keimpema"]
+readme = "README.md"
+packages = [{include = "sqp/**/*.*", format = "sdist"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
