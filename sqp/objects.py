@@ -1,7 +1,8 @@
 class Table:
-    def __init__(self, table_name: str, fields):
+    def __init__(self, table_name: str, fields: list):
+        self.cursor = None
         self.table_name = table_name
-        self.fields = fields
+        self.fields: dict = {field.field_name: field for field in fields}
 
     def __getattribute__(self, item):
         try:
@@ -16,5 +17,8 @@ class Table:
 
 class Field:
     def __init__(self, field_name, field_type):
+        self.cursor = None
+        self.table_name = ''
         self.field_name = field_name
         self.field_type = field_type
+

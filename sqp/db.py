@@ -12,6 +12,8 @@ def dict_factory(cursor, row):
 
 
 class DB:
+    cursor = None
+
     def __init__(self, db_path: Union[Path, str]):
         if isinstance(db_path, str):
             db_path = Path(db_path)
@@ -21,11 +23,14 @@ class DB:
 
         self.conn = sqlite.connect(db_path)
         self.conn.row_factory = dict_factory
-        self.cursor = self.conn.cursor()
+        DB.cursor = self.conn.cursor()
 
         self.tables = {}
 
     def create_table(self, table_name: str, *fields: Field):
+        for field in fields:
+            field.table_name = table_name
+
         tbl = Table(table_name, fields)
         self.tables[table_name] = tbl
 
