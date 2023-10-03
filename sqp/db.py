@@ -30,9 +30,19 @@ class DB:
     def create_table(self, table_name: str, *fields: Field):
         for field in fields:
             field.table_name = table_name
+            field.cursor = self.cursor
 
         tbl = Table(table_name, fields)
         self.tables[table_name] = tbl
+
+        self._create_table(table_name, *fields)
+
+    def _create_table(self, table_name: str, *fields: Field):
+        sql = f'CREATE TABLE IF NOT EXISTS {table_name} ('
+        for field in fields:
+            sql += f'{field.field_name} {field.field_type}, '
+        sql = sql[:-2] + ')'
+        self.cursor.execute(sql)
 
     def __getattribute__(self, item):
         try:
