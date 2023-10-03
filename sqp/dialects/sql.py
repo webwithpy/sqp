@@ -1,10 +1,8 @@
 class SQLDialect:
     equals = '='
     and_ = 'AND'
+    or_ = 'OR'
     neq = '!='
-
-    @classmethod
-
 
     @classmethod
     def sql_str(cls, value):

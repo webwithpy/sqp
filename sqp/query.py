@@ -65,3 +65,6 @@ class Query:
 
     def __and__(self, other):
         return Query(self.db, self.dialect, self.dialect.and_, self, other)
+
+    def __or__(self, other):
+        return Query(self.db, self.dialect, self.dialect.or_, self, other)
