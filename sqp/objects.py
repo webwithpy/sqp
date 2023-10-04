@@ -50,7 +50,8 @@ class Field:
 
 
 class Table:
-    def __init__(self, db=None, table_name: str = "", fields: list = None):
+    def __init__(self, conn=None, db=None, table_name: str = "", fields: list = None):
+        self.conn = conn
         self.cursor = db
         self.table_name = table_name
         self.fields: dict = {field.field_name: field for field in fields}
@@ -64,8 +65,10 @@ class Table:
 
             raise e
 
-    def insert(self, *fields):
-        return Query(self.cursor, SqliteDialect)
+    def insert(self, **values):
+        return Query(
+            conn=self.conn, db=self.cursor, dialect=SqliteDialect, tbl_name=self.table_name
+        ).insert(**values, fields=self._get_field_names_sql())
 
     def select(self, *fields, distinct=False, orderby=None):
         return Query(
@@ -73,3 +76,9 @@ class Table:
             dialect=SqliteDialect,
             tbl_name=self.table_name,
         ).select(*fields, distinct=distinct, orderby=orderby)
+
+    def _get_field_names(self):
+        return [field for field in self.fields if field != "id"]
+
+    def _get_field_names_sql(self):
+        return [f'`{field}`' for field in self._get_field_names()]

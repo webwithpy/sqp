@@ -1,7 +1,8 @@
 class Query:
     def __init__(
-        self, db, dialect, operator="=", first=None, second=None, tbl_name: str = None
+        self, db, dialect, conn=None, operator="=", first=None, second=None, tbl_name: str = None
     ):
+        self.conn= conn
         self.db = db
         self.dialect = dialect
         self.operator = operator
@@ -9,7 +10,21 @@ class Query:
         self.second = second
         self.table_name = tbl_name
 
-    def select(self, *fields: tuple, distinct=False, orderby=None):
+    def insert(self, fields=None, **values) -> None:
+        """
+        NOTE ALL FIELDS ARE REQUIRED TO USE THE INSERT CURRENTLY
+        :param values: list of values that will be inserted into the table
+        :param fields: all name of fields that the table has excluding the id field
+        :return:
+        """
+        if fields is None:
+            fields = self.db.tables[self.table_name].fields.keys()
+
+        sql = self._insert(fields=fields, values=values)
+        self.db.execute(sql)
+        self.conn.commit()
+
+    def select(self, *fields: tuple, distinct=False, orderby=None) -> list[dict]:
         """
         Selects fields from the database and returns the result as a list of dicts
         :param fields: list of fields you want to select from the database
@@ -24,9 +39,9 @@ class Query:
         # So a query can have a query as a child, which can have a query as a child, etc.
         # This unpacks the tree structure into a list of fields and a list of statements
         unpacked = self.dialect.unpack(self)
-        if unpacked['fields'][0] is None:
+        if unpacked["fields"][0] is None:
             tables, where = self._unpacked_as_sql(unpacked).values()
-            where = ''
+            where = ""
         else:
             tables, where = self._unpacked_as_sql(unpacked).values()
 
@@ -54,6 +69,9 @@ class Query:
         )
 
         return self.db.execute(sql).fetchall()
+
+    def _insert(self, fields, values):
+        return f"INSERT INTO {self.table_name} ({', '.join(fields)}) VALUES ({', '.join([str(val) for val in values.values()])})"
 
     def _select(self, fields, tables, where=None, distinct=None, orderby=None):
         return f"SELECT {distinct}{fields} FROM {tables}{where}{orderby}"

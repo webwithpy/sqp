@@ -38,7 +38,7 @@ class DB:
             field.table_name = table_name
             field.cursor = self.cursor
 
-        tbl = Table(self.cursor, table_name, fields)
+        tbl = Table(self.conn, self.cursor, table_name, fields)
         self.tables[table_name] = tbl
 
         self._create_table(table_name, *fields)
