@@ -4,6 +4,7 @@ from .query import Query
 
 class Field:
     def __init__(self, field_name, field_type):
+        self.conn = None
         self.cursor = None
         self.table_name = ""
         self.field_name = field_name
@@ -31,22 +32,22 @@ class Field:
         return self.__str__()
 
     def __eq__(self, other):
-        return Query(self.cursor, SqliteDialect, SqliteDialect.equals, self, other)
+        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.equals, first=self, second=other)
 
     def __ne__(self, other):
-        return Query(self.cursor, SqliteDialect, SqliteDialect.neq, self, other)
+        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.neq, first=self, second=other)
 
     def __lt__(self, other):
-        return Query(self.cursor, SqliteDialect, SqliteDialect.lt, self, other)
+        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.lt, first=self, second=other)
 
     def __le__(self, other):
-        return Query(self.cursor, SqliteDialect, SqliteDialect.le, self, other)
+        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.le, first=self, second=other)
 
     def __gt__(self, other):
-        return Query(self.cursor, SqliteDialect, SqliteDialect.gt, self, other)
+        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.gt, first=self, second=other)
 
     def __ge__(self, other):
-        return Query(self.cursor, SqliteDialect, SqliteDialect.gr, self, other)
+        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.ge, first=self, second=other)
 
 
 class Table:
