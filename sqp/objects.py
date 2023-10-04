@@ -64,7 +64,12 @@ class Table:
 
             raise e
 
+    def insert(self, *fields):
+        return Query(self.cursor, SqliteDialect)
+
     def select(self, *fields, distinct=False, orderby=None):
-        return Query(self.cursor, SqliteDialect, SqliteDialect.gt, 1, -1).select(
-            *fields, table_name=self.table_name, distinct=distinct, orderby=orderby
-        )
+        return Query(
+            db=self.cursor,
+            dialect=SqliteDialect,
+            tbl_name=self.table_name,
+        ).select(*fields, distinct=distinct, orderby=orderby)
