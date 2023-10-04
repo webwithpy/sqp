@@ -15,7 +15,6 @@ class Query:
         :param fields: list of fields you want to select from the database
         :param distinct: use if you only want 1 of any value
         :param orderby: orders the result by the specified field
-        :param table_name: doesn't need to be given by the user
         :return:
         """
         # if no fields are specified, select all fields
@@ -53,7 +52,6 @@ class Query:
         sql = self._select(
             fields=fields, tables=join, where=where, distinct=distinct, orderby=orderby
         )
-        print(sql)
 
         return self.db.execute(sql).fetchall()
 
