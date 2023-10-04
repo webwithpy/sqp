@@ -6,26 +6,40 @@ class Query:
         self.first = first
         self.second = second
 
-    def select(self, fields: list = "*", orderby=None):
+    def select(self, *fields: tuple, distinct=False, orderby=None, table_name=''):
+        fields = [str(field) for field in fields] if len(fields) != 0 else '*'
+
         unpacked = self.dialect.unpack(self)
         tables, where = self._unpacked_as_sql(unpacked).values()
-        print(tables)
-        join = f"{tables[0]}"
+
+        if len(tables) == 0:
+            tables.append(table_name)
+
+        join = f"{tables[0]} "
+
         if len(tables) > 1:
             join += self.tbls_to_join(tables)
 
-        sql = self._select(fields, join, where, orderby)
+        fields = ", ".join(fields) if isinstance(fields, list) else fields
+        distinct = "DISTINCT " if distinct else ""
+        orderby = f"ORDER BY {orderby}" if orderby else ""
+
+        sql = self._select(
+            fields=fields, tables=join, where=where, distinct=distinct, orderby=orderby
+        )
+
         print(sql)
+
         return self.db.execute(sql).fetchall()
 
     def tbls_to_join(self, tables):
         sql = f""
         for table in tables[1:]:
-            sql += f" LEFT JOIN {table} "
+            sql += f" INNER JOIN {table} "
         return sql
 
-    def _select(self, fields, tables, where=None, orderby=None):
-        return f"SELECT {fields} FROM {tables}{where}"
+    def _select(self, fields, tables, where=None, distinct=None, orderby=None):
+        return f"SELECT {distinct}{fields} FROM {tables}{where}{orderby}"
 
     def _unpacked_as_sql(self, unpacked: dict):
         sql = {"tables": [], "where": " WHERE "}
@@ -37,13 +51,13 @@ class Query:
 
             sql["where"] += (tl := self._translate_field(field1))["where"]
 
-            if tl["table"]:
-                sql["tables"] += tl["table"]
+            if tl["table"] and tl["table"] not in sql["tables"]:
+                sql["tables"].append(tl["table"])
 
             sql["where"] += f"{stmt} {(tl := self._translate_field(field2))['where']}"
 
             if tl["table"] and tl["table"] not in sql["tables"]:
-                sql["tables"] += tl["table"]
+                sql["tables"].append(tl["table"])
 
             if unpacked["stmts"]:
                 sql["where"] += unpacked["stmts"].pop(0) + " "
@@ -52,9 +66,9 @@ class Query:
 
     def _translate_field(self, field):
         if "." in str(field):
-            table = [field.split(".")[0]]
+            table = field.split(".")[0]
             where = f"{field} "
-        elif str(field).isnumeric():
+        elif str(field).replace('-', '').isdigit():
             table = None
             where = f"{field} "
         else:

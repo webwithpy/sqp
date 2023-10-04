@@ -10,7 +10,6 @@ class SqliteDialect(SQLDialect):
     @classmethod
     def _unpack(cls, query: Query) -> dict:
         unpacked_query = {'fields': [], 'stmts': []}
-        unpacked = {'fields': [], 'stmts': []}
 
         if isinstance(query.first, Query):
             unpacked = cls._unpack(query.first)

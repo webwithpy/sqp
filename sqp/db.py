@@ -1,4 +1,6 @@
+from .query import Query
 from .objects import Table, Field
+from .dialects.sqlite import SqliteDialect
 from sqlite3 import dbapi2 as sqlite
 from pathlib import Path
 from typing import Union
@@ -28,11 +30,15 @@ class DB:
         self.tables = {}
 
     def create_table(self, table_name: str, *fields: Field):
+        fields = list(fields)
+        id_field = Field('id', 'INTEGER PRIMARY KEY AUTOINCREMENT')
+        fields.insert(0, id_field)
+
         for field in fields:
             field.table_name = table_name
             field.cursor = self.cursor
 
-        tbl = Table(table_name, fields)
+        tbl = Table(self.cursor, table_name, fields)
         self.tables[table_name] = tbl
 
         self._create_table(table_name, *fields)
