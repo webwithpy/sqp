@@ -3,11 +3,11 @@ from .query import Query
 
 
 class Field:
-    def __init__(self, field_name, field_type):
+    def __init__(self, field_type):
         self.conn = None
         self.cursor = None
         self.table_name = ""
-        self.field_name = field_name
+        self.field_name = ""
         self.field_type = self._translate_type(field_type)
 
     def _translate_type(self, field_type):
@@ -32,22 +32,64 @@ class Field:
         return self.__str__()
 
     def __eq__(self, other):
-        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.equals, first=self, second=other)
+        return Query(
+            conn=self.conn,
+            cursor=self.cursor,
+            dialect=SqliteDialect,
+            operator=SqliteDialect.equals,
+            first=self,
+            second=other,
+        )
 
     def __ne__(self, other):
-        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.neq, first=self, second=other)
+        return Query(
+            conn=self.conn,
+            cursor=self.cursor,
+            dialect=SqliteDialect,
+            operator=SqliteDialect.neq,
+            first=self,
+            second=other,
+        )
 
     def __lt__(self, other):
-        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.lt, first=self, second=other)
+        return Query(
+            conn=self.conn,
+            cursor=self.cursor,
+            dialect=SqliteDialect,
+            operator=SqliteDialect.lt,
+            first=self,
+            second=other,
+        )
 
     def __le__(self, other):
-        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.le, first=self, second=other)
+        return Query(
+            conn=self.conn,
+            cursor=self.cursor,
+            dialect=SqliteDialect,
+            operator=SqliteDialect.le,
+            first=self,
+            second=other,
+        )
 
     def __gt__(self, other):
-        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.gt, first=self, second=other)
+        return Query(
+            conn=self.conn,
+            cursor=self.cursor,
+            dialect=SqliteDialect,
+            operator=SqliteDialect.gt,
+            first=self,
+            second=other,
+        )
 
     def __ge__(self, other):
-        return Query(conn=self.conn, cursor=self.cursor, dialect=SqliteDialect, operator=SqliteDialect.ge, first=self, second=other)
+        return Query(
+            conn=self.conn,
+            cursor=self.cursor,
+            dialect=SqliteDialect,
+            operator=SqliteDialect.ge,
+            first=self,
+            second=other,
+        )
 
 
 class Table:
@@ -68,12 +110,15 @@ class Table:
 
     def insert(self, **values):
         return Query(
-            conn=self.conn, db=self.cursor, dialect=SqliteDialect, tbl_name=self.table_name
+            conn=self.conn,
+            cursor=self.cursor,
+            dialect=SqliteDialect,
+            tbl_name=self.table_name,
         ).insert(**values, fields=self._get_field_names_sql())
 
     def select(self, *fields, distinct=False, orderby=None):
         return Query(
-            db=self.cursor,
+            cursor=self.cursor,
             dialect=SqliteDialect,
             tbl_name=self.table_name,
         ).select(*fields, distinct=distinct, orderby=orderby)
@@ -82,4 +127,4 @@ class Table:
         return [field for field in self.fields if field != "id"]
 
     def _get_field_names_sql(self):
-        return [f'`{field}`' for field in self._get_field_names()]
+        return [f"`{field}`" for field in self._get_field_names()]
