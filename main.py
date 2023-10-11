@@ -1,13 +1,19 @@
 from sqp import DB, Table, Field
 
-db = DB("test.sqlite")
-
 
 class Test(Table):
     a = Field("int")
 
 
-db.create_tables()
+class Test2(Table):
+    b = Field("int")
+
 
 if __name__ == "__main__":
-    print((db.Test.a > 0).select())
+    db = DB("test.sqlite")
+    db.create_tables()
+    # db.Test.insert(a=5)
+    # db.Test.insert(a=7)
+    # db.Test2.insert(b=1)
+    # db.Test2.insert(b=7)
+    (db.Test.a == db.Test2.b).delete()
