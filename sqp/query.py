@@ -1,6 +1,3 @@
-from numba import njit
-
-
 class Query:
     def __init__(
         self,
@@ -23,18 +20,18 @@ class Query:
         # removes the amount of table from the select bc they are already selected
         self.tables_selected = 0
 
-    def insert(self, fields=None, **values) -> None:
+    def insert(self, fields=None, **kwargs) -> None:
         """
         NOTE ALL FIELDS ARE REQUIRED TO USE THE INSERT CURRENTLY
-        :param values: list of values that will be inserted into the table
+        :param kwargs: list of values that will be inserted into the table
         :param fields: all name of fields that the table has excluding the id field
         :return:
         """
         if fields is None:
             fields = self.cursor.tables[self.table_name].fields.keys()
 
-        sql = self._insert(fields=fields, values=values)
-        self.cursor.execute(sql)
+        sql = self._insert(fields=fields)
+        self.cursor.execute(sql, tuple(kwargs.values()))
         self.conn.commit()
 
     def _select_gen_sql(self, *fields: tuple | int, distinct=False, orderby=None):
@@ -128,8 +125,8 @@ class Query:
     def _update(self, first_table: str, update_vals: str, select: str):
         return f"UPDATE {first_table} SET {update_vals} WHERE EXISTS ({select})"
 
-    def _insert(self, fields, values):
-        return f"INSERT INTO {self.table_name} ({', '.join(fields)}) VALUES ({', '.join([str(val) for val in values.values()])})"
+    def _insert(self, fields):
+        return f"INSERT INTO {self.table_name} ({', '.join(fields)}) VALUES ({','.join(['?' for _ in fields])})"
 
     def _select(self, fields, tables, where=None, distinct=None, orderby=None):
         return f"SELECT {distinct}{fields} FROM {tables}{where}{orderby}"
@@ -179,7 +176,6 @@ class Query:
 
         return dict(table=table, where=where)
 
-    @njit
     def _set(self, values: dict):
         sql = ""
         first_done = False

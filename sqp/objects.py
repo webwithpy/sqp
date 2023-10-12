@@ -19,8 +19,12 @@ class Field:
             "date": "DATE",
             "datetime": "DATETIME",
             "time": "TIME",
+            "image": "BLOB",
         }
         sql_type = field_type_mapping.get(field_type, None)
+
+        # return the field_type if it isn't into the mapping.
+        # where not going to raise an error here, so you can add you own dt
         if sql_type is None:
             return field_type
         return sql_type
