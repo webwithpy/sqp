@@ -1,2 +1,2 @@
 # sqp
-A database framework for python applications, fully async
+A database framework for python applications
