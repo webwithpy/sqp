@@ -19,10 +19,10 @@ def convertToBinaryData(filename):
 
 
 if __name__ == "__main__":
-    db = DB("test.sqlite")
+    db = DB("sqlite:/test.sqlite")
     db.create_tables()
 
-    db.Test.insert(a=5, b=convertToBinaryData("cat.jpg"))
+    db.Test.insert(a=10, b=convertToBinaryData("cat.jpg"))
 
     # db.Test.insert(a=7)
     # db.Test2.insert(b=1)

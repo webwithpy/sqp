@@ -5,7 +5,7 @@ class SqliteDriver:
         # removes the amount of table from the select bc they are already selected
         self.tables_selected = 0
 
-    def update(self, query, **values):
+    def update(self, query, **kwargs):
         unpacked = self.dialect.unpack(query)
 
         # remove first table from select
@@ -19,11 +19,9 @@ class SqliteDriver:
 
         # The join statement will start with the first table, the order of these tables should not matter
         # So we just select the first table and join the rest of the tables
-        update_vals = self._set(values)
+        update_vals = ",".join(["?" for _ in kwargs])
 
-        return self._update(
-            first_table=tables[0], update_vals=update_vals, select=where
-        )
+        return self._update(first_table=tables[0], update_vals=update_vals, where=where)
 
     def delete(self, query):
         unpacked = self.dialect.unpack(query)
@@ -129,7 +127,7 @@ class SqliteDriver:
             else None
         )
 
-        return dict(field=translated_field['field'], table=table)
+        return dict(field=translated_field["field"], table=table)
 
     @classmethod
     def _translate_field(cls, field):
@@ -146,7 +144,7 @@ class SqliteDriver:
         return dict(table=table, field=field)
 
     @classmethod
-    def _set(cls, values: dict):
+    def _set(cls, values: dict[str, str | bytes]):
         """
         turns a set of values into a key = value statement.
         example -> {"a": 2} returns "a=2"
@@ -168,21 +166,14 @@ class SqliteDriver:
             first_done = True
         return sql
 
-
-
-    def insert(self, table_name, fields, values):
-        values_to_sql = ",".join(
-            [row.split("=")[1] for row in self._set(values).split(",")]
-        )
-        return (
-            f"INSERT INTO {table_name} ({', '.join(fields)}) VALUES ({values_to_sql})"
-        )
+    def insert(self, table_name, fields):
+        return f"INSERT INTO {table_name} ({','.join(fields)}) VALUES ({','.join(['?' for _ in fields])})"
 
     def _select(self, fields, tables, where=None, distinct=None, orderby=None):
         return f"SELECT {distinct}{fields} FROM {tables}{where}{orderby}"
 
-    def _update(self, first_table: str, update_vals: str, select: str):
-        return f"UPDATE {first_table} SET {update_vals} {select}"
+    def _update(self, first_table: str, update_vals: str, where: str):
+        return f"UPDATE {first_table} SET {update_vals} {where}"
 
     def _delete(self, first_table: str, select: str):
         return f"DELETE FROM {first_table} {select}"
