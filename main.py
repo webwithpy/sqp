@@ -1,5 +1,8 @@
 from sqp import DB, Table, Field
 from pathlib import Path
+import time
+from cProfile import Profile
+from pstats import SortKey, Stats
 
 
 class Test(Table):
@@ -8,7 +11,9 @@ class Test(Table):
 
 
 class Test2(Table):
-    b = Field("int")
+    name = Field("string")
+    email = Field("string")
+    profile_picture = Field("blob")
 
 
 def convertToBinaryData(filename):
@@ -22,8 +27,14 @@ if __name__ == "__main__":
     db = DB("sqlite:/test.sqlite")
     db.create_tables()
 
-    db.Test.insert(a=10, b=convertToBinaryData("cat.jpg"))
+    # for _ in range(18):
+    #     db.Test2.insert(name="John Doe", email="test@gmail.com")
 
-    # db.Test.insert(a=7)
-    # db.Test2.insert(b=1)
-    # db.Test2.insert(b=7)
+    start = time.time()
+    for _ in range(10000):
+        (db.Test2.id >= 0).select()
+    end = time.time()
+    print(end - start)
+
+    # db.Test2.insert(name="John Doe", email="test@gmail.com")
+    # db.Test2.insert(name="John Doe", email="test@gmail.com")

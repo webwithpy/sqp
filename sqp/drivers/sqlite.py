@@ -6,6 +6,9 @@ class SqliteDriver:
         self.tables_selected = 0
 
     def update(self, query, **kwargs):
+        if len(kwargs) == 0:
+            raise Exception("Need to give up args to update!")
+
         unpacked = self.dialect.unpack(query)
 
         # remove first table from select
@@ -166,8 +169,8 @@ class SqliteDriver:
             first_done = True
         return sql
 
-    def insert(self, table_name, fields):
-        return f"INSERT INTO {table_name} ({','.join(fields)}) VALUES ({','.join(['?' for _ in fields])})"
+    def insert(self, table_name: str, items: dict):
+        return f"INSERT INTO {table_name} ({','.join(items.keys())}) VALUES ({','.join(['?' for _ in items.keys()])})"
 
     def _select(self, fields, tables, where=None, distinct=None, orderby=None):
         return f"SELECT {distinct}{fields} FROM {tables}{where}{orderby}"
