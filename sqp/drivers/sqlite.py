@@ -22,7 +22,7 @@ class SqliteDriver:
 
         # The join statement will start with the first table, the order of these tables should not matter
         # So we just select the first table and join the rest of the tables
-        update_vals = ",".join(["?" for _ in kwargs])
+        update_vals = ",".join([f"{key}=?" for key in kwargs.keys()])
 
         return self._update(first_table=tables[0], update_vals=update_vals, where=where)
 
