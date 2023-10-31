@@ -1,7 +1,6 @@
 from .objects import Table, Field
 from sqlite3 import dbapi2 as sqlite
 from pathlib import Path
-from numba import njit
 
 
 def dict_factory(cursor, row):
