@@ -11,6 +11,7 @@ class Test(Table):
 
 
 class Test2(Table):
+    cache = True
     name = Field("string")
     email = Field("string")
     profile_picture = Field("blob")
@@ -35,6 +36,6 @@ if __name__ == "__main__":
         (db.Test2.id >= 0).select()
     end = time.time()
     print(end - start)
-
+    print((db.Test2.id >= 0).select())
     # db.Test2.insert(name="John Doe", email="test@gmail.com")
     # db.Test2.insert(name="John Doe", email="test@gmail.com")

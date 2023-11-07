@@ -1,3 +1,6 @@
+from .tools import cacher
+
+
 class Query:
     def __init__(
         self,
@@ -11,6 +14,7 @@ class Query:
         first=None,
         second=None,
         tbl_name: str = None,
+        using_cache: bool = False
     ):
         self.db = db
         self.conn = conn
@@ -21,6 +25,7 @@ class Query:
         self.first = first
         self.second = second
         self.table_name = tbl_name
+        self.using_cache = using_cache
 
     def __tables__(self):
         unpacked_query = self.dialect.unpack(self)
@@ -45,7 +50,6 @@ class Query:
         :param orderby: orders the result by the specified field
         :return:
         """
-
         # generate the select statement from what we have generated above
         sql = self.driver.select_sql(
             *fields,
@@ -55,15 +59,36 @@ class Query:
             orderby=orderby,
         )
 
+        # print(self.using_cache)d
+        # caching logic
+        if self.using_cache:
+            if cacher.select_in_cache(table_name=self.table_name, select_stmt=sql):
+                return cacher.get_cache_by_select(
+                    table_name=self.table_name, select_stmt=sql
+                )
+            else:
+                value = self.cursor.execute(sql).fetchall()
+                cacher.insert_cache(
+                    table_name=self.table_name, select_stmt=sql, value=value
+                )
+                return value
+
+        # execute the sql
         return self.cursor.execute(sql).fetchall()
 
     def update(self, **kwargs):
+        if self.using_cache:
+            cacher.remove_table_cache(self.table_name)
+
         sql = self.driver.update(query=self, **kwargs)
 
         self.cursor.execute(sql, tuple(kwargs.values()))
         self.conn.commit()
 
     def delete(self):
+        if self.using_cache:
+            cacher.remove_table_cache(self.table_name)
+
         sql = self.driver.delete(query=self)
 
         self.cursor.execute(sql)
@@ -79,6 +104,7 @@ class Query:
             driver=self.driver,
             first=self,
             second=other,
+            using_cache=self.using_cache,
         )
 
     def __or__(self, other):
@@ -91,4 +117,5 @@ class Query:
             driver=self.driver,
             first=self,
             second=other,
+            using_cache=self.using_cache,
         )
