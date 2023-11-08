@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sqp"
-version = "0.1"
+version = "0.2"
 description = ""
 authors = ["Sven Keimpema"]
 readme = "README.md"

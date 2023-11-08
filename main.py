@@ -1,8 +1,7 @@
 from sqp import DB, Table, Field
+from sqp.tools import cacher
 from pathlib import Path
 import time
-from cProfile import Profile
-from pstats import SortKey, Stats
 
 
 class Test(Table):
@@ -34,8 +33,10 @@ if __name__ == "__main__":
     start = time.time()
     for _ in range(10000):
         (db.Test2.id >= 0).select()
+
     end = time.time()
-    print(end - start)
-    print((db.Test2.id >= 0).select())
+    print(f"Time taken: {(end - start):.4f} s")
+
+    cacher.print_cache()
     # db.Test2.insert(name="John Doe", email="test@gmail.com")
     # db.Test2.insert(name="John Doe", email="test@gmail.com")
