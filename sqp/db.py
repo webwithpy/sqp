@@ -1,6 +1,7 @@
 from .objects import Table, Field
 from sqlite3 import dbapi2 as sqlite
 from pathlib import Path
+from typing import Type
 
 
 def dict_factory(cursor, row):
@@ -36,41 +37,45 @@ class DB:
             DB.tables = {}
             DB.url = str(db_path)
 
-    def create_tables(self):
+    def create_table(self, table: Table | Type[Table]):
         id_field = Field(field_type="INTEGER PRIMARY KEY AUTOINCREMENT")
+        cache = table.cache if "cache" in vars(table) else False
 
+        table_name = table.table_name if "table_name" in vars(table) else table.__name__
+
+        table_fields = {
+            var: vars(table)[var]
+            for var in vars(table)
+            if isinstance(vars(table)[var], Field)
+        }
+
+        table_fields["id"] = id_field
+
+        for field_name, field in table_fields.items():
+            self._set_field(field, field_name, table_name, cache)
+
+        table.db = self
+
+        tbl = Table(
+            db=self,
+            conn=DB.conn,
+            cursor=DB.cursor,
+            driver=DB.driver,
+            table_name=table_name,
+            fields=[value for value in table_fields.values()],
+            caching=cache,
+        )
+
+        DB.tables[table_name] = tbl
+        self._create_table(table_name, *[field for field in table_fields.values()])
+
+    def create_tables(self, *tables: Table):
+        for table in tables:
+            self.create_table(table)
+
+    def create_all_tables(self):
         for table in Table.__subclasses__():
-            cache = table.cache if "cache" in vars(table) else False
-
-            table_name = (
-                table.table_name if "table_name" in vars(table) else table.__name__
-            )
-
-            table_fields = {
-                var: vars(table)[var]
-                for var in vars(table)
-                if isinstance(vars(table)[var], Field)
-            }
-
-            table_fields["id"] = id_field
-
-            for field_name, field in table_fields.items():
-                self._set_field(field, field_name, table_name, cache)
-
-            table.db = self
-
-            tbl = Table(
-                db=self,
-                conn=DB.conn,
-                cursor=DB.cursor,
-                driver=DB.driver,
-                table_name=table_name,
-                fields=[value for value in table_fields.values()],
-                caching=cache,
-            )
-
-            DB.tables[table_name] = tbl
-            self._create_table(table_name, *[field for field in table_fields.values()])
+            self.create_table(table)
 
     def _set_field(self, field, field_name, table_name, cache):
         field.field_name = field_name
