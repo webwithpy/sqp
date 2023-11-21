@@ -1,3 +1,4 @@
+from .auth import AuthUser
 from .objects import Table, Field
 from sqlite3 import dbapi2 as sqlite
 from pathlib import Path
@@ -40,7 +41,7 @@ class DB:
         self.exec_sql("PRAGMA foreign_keys = ON;")
 
     def exec_sql(self, sql: str):
-        return self.cursor.execute(sql).all()
+        return self.cursor.execute(sql)
 
     def create_table(self, table: Table | Type[Table]):
         id_field = Field(field_type="INTEGER PRIMARY KEY AUTOINCREMENT")
@@ -74,13 +75,16 @@ class DB:
         DB.tables[table_name] = tbl
         self._create_table(table_name, *[field for field in table_fields.values()])
 
-    def create_tables(self, *tables: Table):
+    def create_tables(self, *tables: Type[Table]):
         for table in tables:
             self.create_table(table)
 
     def create_all_tables(self):
         for table in Table.__subclasses__():
             self.create_table(table)
+
+    def create_auth(self):
+        self.create_table(AuthUser)
 
     def _set_field(self, field, field_name, table_name, cache):
         field.field_name = field_name

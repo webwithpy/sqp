@@ -25,18 +25,19 @@ def convertToBinaryData(filename):
 
 if __name__ == "__main__":
     db = DB("sqlite:/test.sqlite")
-    db.create_tables()
+    db.create_tables(Test, Test2)
+    db.create_auth()
 
-    # for _ in range(18):
+    # for _ in range(1000):
     #     db.Test2.insert(name="John Doe", email="test@gmail.com")
 
-    start = time.time()
-    for _ in range(10000):
-        (db.Test2.id >= 0).select()
+    # start = time.time()
+    # for _ in range(10000):
+    #     (db.Test2.id >= 0).select()
+    #
+    # end = time.time()
+    # print(f"Time taken: {(end - start):.4f} s")
 
-    end = time.time()
-    print(f"Time taken: {(end - start):.4f} s")
-
-    cacher.print_cache()
+    # cacher.print_cache()
     # db.Test2.insert(name="John Doe", email="test@gmail.com")
     # db.Test2.insert(name="John Doe", email="test@gmail.com")
