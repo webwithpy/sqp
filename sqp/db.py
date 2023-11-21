@@ -2,7 +2,7 @@ from .auth import AuthUser
 from .objects import Table, Field
 from sqlite3 import dbapi2 as sqlite
 from pathlib import Path
-from typing import Type
+from typing import Dict, Type
 
 
 def dict_factory(cursor, row):
@@ -13,7 +13,7 @@ class DB:
     conn = None
     cursor = None
     driver = None
-    tables = None
+    tables: Dict[str, Table] = None
     url = None
 
     def __init__(self, db_path: str):
@@ -86,7 +86,7 @@ class DB:
     def create_auth(self):
         self.create_table(AuthUser)
 
-    def _set_field(self, field, field_name, table_name, cache):
+    def _set_field(self, field, field_name, table_name, cache: bool):
         field.field_name = field_name
         field.table_name = table_name
         field.cursor = DB.cursor

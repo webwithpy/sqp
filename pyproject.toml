@@ -9,6 +9,7 @@ packages = [{include = "sqp/**/*.*", format = "sdist"}]
 [tool.poetry.dependencies]
 python = "^3.10"
 numba = "^1.24.4"
+bcrypt = "^3.2.0"
 
 [build-system]
 requires = ["poetry-core"]
