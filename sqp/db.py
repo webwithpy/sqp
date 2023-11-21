@@ -37,6 +37,11 @@ class DB:
             DB.tables = {}
             DB.url = str(db_path)
 
+        self.exec_sql("PRAGMA foreign_keys = ON;")
+
+    def exec_sql(self, sql: str):
+        return self.cursor.execute(sql).all()
+
     def create_table(self, table: Table | Type[Table]):
         id_field = Field(field_type="INTEGER PRIMARY KEY AUTOINCREMENT")
         cache = table.cache if "cache" in vars(table) else False
